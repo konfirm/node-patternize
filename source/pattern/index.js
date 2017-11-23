@@ -1,5 +1,6 @@
-const Expr = require('@konfirm/expressionist');
-const Parser = require('./parser');
+const Parser = require('../parser');
+const Component = require('./component');
+
 const storage = new WeakMap();
 
 /**
@@ -14,33 +15,10 @@ class Pattern {
 	 *  @param     {String}  input
 	 *  @memberof  Pattern
 	 */
-	constructor(input) {
-		//  TODO: should we allow for creation without using a string (feeding the components as is)?
-		const chunks = Parser.parse(input, [ { open: '{', close: '}', key: true } ]);
-		const property = /^\{([a-zA-Z]\w*)(?::(.+))?\}$/;
-		const components = chunks
-			//  TODO: shorten this code
-			.reduce((carry, string) => {
-				const prev = carry.length - 1;
-
-				if (prev >= 0 && !property.test(carry[prev]) && !property.test(string)) {
-					carry[prev] += string;
-
-					return carry;
-				}
-
-				return carry.concat(string);
-			}, [])
-			.map((string) => {
-				const match = string.match(property);
-				const pattern =  match ? `(${Expr.ungroup(match[2] || '\\w+')})` : Expr.escape(string);
-
-				return { string, key: match ? match[1] : null, pattern, regexp: new RegExp(pattern) };
-			});
-
+	constructor(components) {
 		storage.set(this, {
-			string: input,
 			components,
+			string: components.map((comp) => comp.string).join(''),
 			keys: components.map((comp) => comp.key).filter((key) => key),
 			normal: components.map((comp) => comp.key ? '{*}' : comp.string).join(''),
 			expression: new RegExp(`^${components.map((comp) => comp.pattern).join('')}$`),
@@ -75,7 +53,7 @@ class Pattern {
 		const length = keys.length;
 
 		return components
-			.filter((comp) => comp.key in input && comp.regexp.test(input[comp.key])).length === length;
+			.filter((comp) => comp.key in input && comp.regex.test(input[comp.key])).length === length;
 	}
 
 	/**
@@ -107,6 +85,16 @@ class Pattern {
 			.join('');
 	}
 
+	equals(compare) {
+		return compare instanceof Pattern ? compare.string === this.string : String(compare) === this.string;
+	}
+
+	same(compare) {
+		const pattern = compare instanceof Pattern ? compare : new Pattern(String(compare));
+
+		return
+	}
+
 	/**
 	 *  Get the string used to created the Pattern instance
 	 *
@@ -127,6 +115,27 @@ class Pattern {
 	 */
 	get normalized() {
 		return storage.get(this).normal;
+	}
+
+	static fromString(input, raw=false) {
+		const chunks = Parser.parse(input, [ { open: '{', close: '}', key: true } ]);
+		const property = /^\{([a-zA-Z]\w*)(?::(.+))?\}$/;
+		const components = chunks
+			//  TODO: shorten this code
+			.reduce((carry, string) => {
+				const prev = carry.length - 1;
+
+				if (prev >= 0 && !property.test(carry[prev]) && !property.test(string)) {
+					carry[prev] += string;
+
+					return carry;
+				}
+
+				return carry.concat(string);
+			}, [])
+			.map((string) => new Component(string));
+
+		return raw ? components : new Pattern(components);
 	}
 }
 

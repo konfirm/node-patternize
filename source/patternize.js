@@ -47,7 +47,7 @@ class Patternize {
 
 	register(string) {
 		const { list } = storage.get(this);
-		const pattern = new Pattern(string);
+		const pattern = Pattern.fromString(string);
 
 		list.push(pattern);
 	}

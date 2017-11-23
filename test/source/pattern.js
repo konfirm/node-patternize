@@ -31,7 +31,7 @@ describe('Pattern', () => {
 		];
 
 		tests.forEach((suite) => {
-			const pattern = new Pattern(suite.rule);
+			const pattern = Pattern.fromString(suite.rule);
 
 			describe(`rule "${suite.rule}"`, () => {
 				suite.input.forEach((input) => {
@@ -90,12 +90,16 @@ describe('Pattern', () => {
 
 		tests.forEach((suite) => {
 			it(`"${suite.input}" = ${suite.expect}`, (next) => {
-				const pattern = new Pattern(suite.input);
+				const pattern = Pattern.fromString(suite.input);
 
 				expect(pattern.normalized).to.equal(suite.expect);
 
 				next();
 			});
 		});
+	});
+
+	describe('Detect duplication', () => {
+		const pattern = Pattern.fromString('{}')
 	});
 });
