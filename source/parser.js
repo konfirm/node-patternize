@@ -108,17 +108,28 @@ class Parser {
 
 	/**
 	 *  Parse the given string into chunks, based on the provided
-	 *  (or default) rules
+	 *  (or default) rules and merge adjecent chunks based on an optional
+	 *  merge comparison function
 	 *
 	 *  @param     {String}     input
-	 *  @param     {Array|Map}  [rules]
+	 *  @param     {Array|Map}  [rules=null]
+	 *  @param     {Function}   [merge=null]
 	 *  @return    {Array}      chunks
 	 *  @memberof  Parser
 	 */
-	static parse(input, rules=null) {
+	static parse(input, rules=null, merge=null) {
 		const config = rules || this.RULES;
 
-		return this.chunk(input, config instanceof Map ? config : this.rulesMap(config));
+		return this.chunk(input, config instanceof Map ? config : this.rulesMap(config))
+			.reduce((carry, chunk, index, all) => {
+				const add = [chunk];
+
+				if (index && merge && merge(all[index - 1], chunk)) {
+					carry[carry.length - 1] += add.shift();
+				}
+
+				return carry.concat(add);
+			}, []);
 	}
 }
 

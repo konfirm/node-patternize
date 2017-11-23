@@ -117,25 +117,32 @@ class Pattern {
 		return storage.get(this).normal;
 	}
 
-	static fromString(input, raw=false) {
-		const chunks = Parser.parse(input, [ { open: '{', close: '}', key: true } ]);
-		const property = /^\{([a-zA-Z]\w*)(?::(.+))?\}$/;
-		const components = chunks
-			//  TODO: shorten this code
-			.reduce((carry, string) => {
-				const prev = carry.length - 1;
+	/**
+	 *  Parse the given string and create a list of PatternComponents
+	 *
+	 *  @name      createComponents
+	 *  @param     {String}  input
+	 *  @return    {Array}   components
+	 *  @memberof  Pattern
+	 */
+	static createComponents(input) {
+		const property = Component.PROPERTY_PATTERN;
 
-				if (prev >= 0 && !property.test(carry[prev]) && !property.test(string)) {
-					carry[prev] += string;
-
-					return carry;
-				}
-
-				return carry.concat(string);
-			}, [])
+		return Parser
+			.parse(input, [ { open: '{', close: '}', key: true } ], (a, b) => !property.test(a) && !property.test(b))
 			.map((string) => new Component(string));
+	}
 
-		return raw ? components : new Pattern(components);
+	/**
+	 *  Create a new Parser instance from string input
+	 *
+	 *  @name      fromString
+	 *  @param     {String}   input
+	 *  @return    {Pattern}  instance
+	 *  @memberof  Pattern
+	 */
+	static fromString(input) {
+		return new Pattern(this.createComponents(input));
 	}
 }
 
