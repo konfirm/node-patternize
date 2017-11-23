@@ -85,14 +85,43 @@ class Pattern {
 			.join('');
 	}
 
+	/**
+	 *  Determine whether the given comparison equals the current pattern
+	 *
+	 *  @name      equals
+	 *  @param     {Pattern|Array|String}  compare
+	 *  @return    {Boolean}               equals
+	 *  @memberof  Pattern
+	 */
 	equals(compare) {
-		return compare instanceof Pattern ? compare.string === this.string : String(compare) === this.string;
+		if (compare instanceof this.constructor) {
+			return compare.string === this.string;
+		}
+
+		if (Array.isArray(compare)) {
+			return this.components
+				.filter((comp, index) => compare[index] instanceof Component && compare[index].string === comp.string)
+				.length === this.components.length;
+		}
+
+		return String(compare) === this.string;
 	}
 
+	/**
+	 *  Determine whether the given comparison implements the same matching as
+	 *  the current Pattern
+	 *
+	 *  @name      same
+	 *  @param     {Pattern|Array|String}  compare
+	 *  @return    {Boolean}               equals
+	 *  @memberof  Pattern
+	 */
 	same(compare) {
-		const pattern = compare instanceof Pattern ? compare : new Pattern(String(compare));
+		const components = this.components;
 
-		return
+		return this.constructor.getComponentList(compare)
+			.filter((comp, index) => comp.pattern === components[index].pattern)
+			.length === components.length;
 	}
 
 	/**
@@ -115,6 +144,39 @@ class Pattern {
 	 */
 	get normalized() {
 		return storage.get(this).normal;
+	}
+
+	/**
+	 *  Get the components which make up the Pattern instance
+	 *
+	 *  @name      components
+	 *  @readonly
+	 *  @memberof  Pattern
+	 */
+	get components() {
+		return storage.get(this).components;
+	}
+
+	/**
+	 *  Obtain the components from either a Pattern instance, an array of
+	 *  Components or a pattern string
+	 *
+	 *  @name      getComponentList
+	 *  @param     {Pattern|Array|String}  input
+	 *  @return    {Array}                 components
+	 *  @static
+	 *  @memberof  Pattern
+	 */
+	static getComponentList(input) {
+		if (input instanceof this) {
+			return input.components;
+		}
+
+		if (Array.isArray(input)) {
+			return input.filter((item) => item instanceof Component);
+		}
+
+		return this.createComponents(String(input));
 	}
 
 	/**

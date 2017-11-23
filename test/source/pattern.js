@@ -100,6 +100,42 @@ describe('Pattern', () => {
 	});
 
 	describe('Detect duplication', () => {
-		const pattern = Pattern.fromString('{}')
+		const tests = [
+			{ a: 'foo.bar', b: 'foo.bar', equal: true, same: true },
+			{ a: 'foo.{bar}', b: 'foo.{hello}', equal: false, same: true },
+			{ a: 'foo.{bar}', b: 'foo.{bar:[a-z]+}', equal: false, same: false },
+			{ a: 'foo.{bar:[a-z]+}', b: 'foo.{bar:[a-z]+}', equal: true, same: true },
+			{ a: 'foo.{bar:[a-zA-Z]+}', b: 'foo.{bar:[a-z]+}', equal: false, same: false },
+		];
+
+		tests.forEach((test) => {
+			it(`compare "${test.a}" with ${test.b}`, (next) => {
+				const patternA = Pattern.fromString(test.a);
+				const patternB = Pattern.fromString(test.b);
+				const componentsA = patternA.components;
+				const componentsB = patternB.components;
+
+				expect(patternA.equals(test.b)).to.equal(test.equal);
+				expect(patternB.equals(test.a)).to.equal(test.equal);
+				expect(patternA.equals(patternB)).to.equal(test.equal);
+				expect(patternB.equals(patternA)).to.equal(test.equal);
+				expect(patternA.equals(componentsB)).to.equal(test.equal);
+				expect(patternB.equals(componentsA)).to.equal(test.equal);
+
+				expect(patternA.same(test.b)).to.equal(test.same);
+				expect(patternB.same(test.a)).to.equal(test.same);
+				expect(patternA.same(patternB)).to.equal(test.same);
+				expect(patternB.same(patternA)).to.equal(test.same);
+				expect(patternA.same(componentsB)).to.equal(test.same);
+				expect(patternB.same(componentsA)).to.equal(test.same);
+
+				expect(patternA.equals([test.b])).to.equal(false);
+				expect(patternB.equals([test.a])).to.equal(false);
+				expect(patternA.same([test.b])).to.equal(false);
+				expect(patternB.same([test.a])).to.equal(false);
+
+				next();
+			});
+		});
 	});
 });

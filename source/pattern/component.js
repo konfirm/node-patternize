@@ -14,6 +14,13 @@ class PatternComponent {
 		});
 	}
 
+	/**
+	 *  Obtain the pattern to determine pattern keys
+	 *
+	 *  @readonly
+	 *  @static
+	 *  @memberof PatternComponent
+	 */
 	static get PROPERTY_PATTERN() {
 		return /^\{([a-zA-Z]\w*)(?::(.+))?\}$/;
 	}
