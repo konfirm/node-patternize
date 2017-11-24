@@ -1,55 +1,36 @@
 const Pattern = require('./pattern');
 const storage = new WeakMap();
 
+/**
+ *  Patternize, register and find Patterns
+ *
+ *  @class Patternize
+ */
 class Patternize {
+	/**
+	 *  Creates an instance of Patternize.
+	 *
+	 *  @memberof Patternize
+	 */
 	constructor() {
 		storage.set(this, { list: [] });
 	}
 
-	// on(input, handle) {
-	// 	const { list } = storage.get(this);
-
-	// 	list.push({ input, pattern: new Pattern(input), handle, limit: Infinity });
-	// }
-
-	// once(input, handle) {
-	// 	const { list } = storage.get(this);
-
-	// 	list.push({ input, pattern: new Pattern(input), handle, limit: 1 });
-	// }
-
-	// off(input, handle) {
-	// 	const { list } = storage.get(this);
-
-	// 	return list
-	// 		.reduce((carry, item, index) => {
-	// 			const matches = (!input || item.input === input) && (!handle || item.handle === handle);
-
-	// 			return (matches ? [index] : []).concat(carry);
-	// 		}, [])
-	// 		.reduce((carry, index) => list.splice(index, 1).concat(carry), []);
-	// }
-
-	// trigger(input, ...args) {
-	// 	const collect = [];
-
-	// 	return storage.get(this).list
-	// 		.filter((item) => item.pattern.matches(input))
-	// 		.sort((a, b) => {
-	// 			let va = a.pattern.specificity;
-	// 			let sb = b.pattern.specificity;
-
-	// 			return sa > sb ? -1 : +(sa < sb);
-	// 		})
-	// 		.reduce((promise, item) => promise.then((result) => new Promise((resolve, reject) => {
-	// 		})), Promise.resolve());
-	// }
-
-	register(string) {
+	register(pattern) {
 		const { list } = storage.get(this);
-		const pattern = Pattern.fromString(string);
+		const instance = pattern instanceof Pattern ? pattern : Pattern.fromString(pattern);
 
-		list.push(pattern);
+		if (!this.contains(instance)) {
+			list.push(instance);
+		}
+
+		return instance;
+	}
+
+	contains(compare, similar=true) {
+		return storage.get(this).list
+			.filter((pattern) => similar ? pattern.same(compare) : pattern.equals(compare))
+			.length > 0;
 	}
 
 	match(input) {
@@ -66,6 +47,10 @@ class Patternize {
 				value: pattern.getMatchedValues(input),
 				pattern: pattern.string,
 			}));
+	}
+
+	matchOne(input) {
+		return this.match(input).shift();
 	}
 }
 

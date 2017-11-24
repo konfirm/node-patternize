@@ -9,24 +9,31 @@ describe('Patternize', () => {
 		patterns.register('foo');
 
 		it('does not match "bar"', (next) => {
-			const bar = patterns.match('bar');
+			const bars = patterns.match('bar');
+			const bar = patterns.matchOne('bar');
 
-			expect(bar).to.be.array();
-			expect(bar).to.equal([]);
+			expect(bars).to.be.array();
+			expect(bars).to.equal([]);
+
+			expect(bar).to.equal(undefined);
 
 			next();
 		});
 
 		it('matches "foo"', (next) => {
-			const foo = patterns.match('foo');
-			expect(foo).to.be.array();
-			expect(foo.length).to.equal(1);
+			const foos = patterns.match('foo');
+			const foo = patterns.matchOne('foo');
 
-			expect(foo[0]).to.equal({
+			expect(foos).to.be.array();
+			expect(foos.length).to.equal(1);
+
+			expect(foo).to.equal({
 				match: 'foo',
 				value: null,
 				pattern: 'foo',
 			});
+
+			expect(foos[0]).to.equal(foo);
 
 			next();
 		});
@@ -38,38 +45,49 @@ describe('Patternize', () => {
 		patterns.register('foo.{bar}');
 
 		it('does not match "bar.baz"', (next) => {
-			const baz = patterns.match('bar.baz');
+			const bazs = patterns.match('bar.baz');
+			const baz = patterns.matchOne('bar.baz');
 
-			expect(baz).to.be.array();
-			expect(baz).to.equal([]);
+			expect(bazs).to.be.array();
+			expect(bazs).to.equal([]);
+
+			expect(baz).to.equal(undefined);
 
 			next();
 		});
 
 		it('matches "foo.baz"', (next) => {
-			const foo = patterns.match('foo.baz');
-			expect(foo).to.be.array();
-			expect(foo.length).to.equal(1);
+			const foos = patterns.match('foo.baz');
+			const foo = patterns.matchOne('foo.baz');
 
-			expect(foo[0]).to.equal({
+			expect(foos).to.be.array();
+			expect(foos.length).to.equal(1);
+
+			expect(foo).to.equal({
 				match: 'foo.baz',
 				value: new Map().set('bar', 'baz'),
 				pattern: 'foo.{bar}',
 			});
 
+			expect(foos[0]).to.equal(foo);
+
 			next();
 		});
 
 		it('matches "foo.12345"', (next) => {
-			const foo = patterns.match('foo.12345');
-			expect(foo).to.be.array();
-			expect(foo.length).to.equal(1);
+			const foos = patterns.match('foo.12345');
+			const foo = patterns.matchOne('foo.12345');
 
-			expect(foo[0]).to.equal({
+			expect(foos).to.be.array();
+			expect(foos.length).to.equal(1);
+
+			expect(foo).to.equal({
 				match: 'foo.12345',
 				value: new Map().set('bar', '12345'),
 				pattern: 'foo.{bar}',
 			});
+
+			expect(foos[0]).to.equal(foo);
 
 			next();
 		});
@@ -82,40 +100,50 @@ describe('Patternize', () => {
 
 		it('does not match "bar.baz"', (next) => {
 			const matched = patterns.match('bar.baz');
+			const one = patterns.matchOne('bar.baz');
 
 			expect(matched).to.be.array();
 			expect(matched).to.equal([]);
+
+			expect(one).to.equal(undefined);
 
 			next();
 		});
 
 		it('does not match "foo.baz"', (next) => {
 			const matched = patterns.match('foo.baz');
+			const one = patterns.matchOne('foo.bar');
 
 			expect(matched).to.be.array();
 			expect(matched.length).to.equal(0);
 			expect(matched).to.equal([]);
+
+			expect(one).to.equal(undefined);
 
 			next();
 		});
 
 		it('matches "foo.12345"', (next) => {
 			const matched = patterns.match('foo.12345');
+			const one = patterns.matchOne('foo.12345');
+
 			expect(matched).to.be.array();
 			expect(matched.length).to.equal(1);
 
-			expect(matched[0]).to.equal({
+			expect(one).to.equal({
 				match: 'foo.12345',
 				value: new Map().set('bar', '12345'),
 				pattern: 'foo.{bar:[0-9]+}',
 			});
+
+			expect(matched[0]).to.equal(one);
 
 			next();
 		});
 	});
 
 
-	describe('orders by specificity', () => {
+	describe('orders correctly', () => {
 		describe('0-2 variables)', () => {
 			const patterns = new Patternize();
 
@@ -127,10 +155,13 @@ describe('Patternize', () => {
 
 			it('orders "foo.bar"', (next) => {
 				const matched = patterns.match('foo.bar');
+				const one = patterns.matchOne('foo.bar');
 				const order = matched.map((match) => match.pattern);
 
 				expect(matched.length).to.equal(4);
 				expect(matched[0].value).to.equal(null);
+
+				expect(one).to.equal(matched[0]);
 
 				expect(order[0]).to.equal('foo.bar');
 				expect(order[1]).to.equal('foo.{bar}');
@@ -155,10 +186,13 @@ describe('Patternize', () => {
 
 			it('orders "foo/bar/baz"', (next) => {
 				const matched = patterns.match('foo/bar/baz');
+				const one = patterns.matchOne('foo/bar/baz');
 				const order = matched.map((match) => match.pattern);
 
 				expect(matched.length).to.equal(8);
 				expect(matched[0].value).to.equal(null);
+
+				expect(one).to.equal(matched[0]);
 
 				expect(order[0]).to.equal('foo/bar/baz');
 				expect(order[1]).to.equal('foo/bar/{baz}');
@@ -199,6 +233,8 @@ describe('Patternize', () => {
 
 			it(`matches and orders all ${register.length} items`, (next) => {
 				const matched = patterns.match(input);
+				const one = patterns.matchOne(input);
+
 				const order = matched.map((match) => match.pattern);
 				const ehm = order.slice().sort((a, b) => {
 					const ua = a.replace(/\{[^\}]+\}/g, '{*}');
@@ -213,6 +249,8 @@ describe('Patternize', () => {
 
 				expect(matched.length).to.equal(register.length);
 				expect(matched[0].value).to.equal(null);
+
+				expect(one).to.equal(matched[0]);
 
 				expect(order[0]).to.equal('aaa.bbb.ccc.ddd.eee.fff.ggg.hhh.iii.jjj');
 				expect(order[1]).to.equal('aaa.bbb.ccc.ddd.eee.fff.ggg.hhh.iii.{jjj}');
