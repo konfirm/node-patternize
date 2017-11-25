@@ -2,7 +2,7 @@ const Expressionist = require('@konfirm/expressionist');
 const storage = new WeakMap();
 
 /**
- *  Single matchable compent of a Pattern
+ *  Single matchable component of a Pattern
  *
  *  @class    PatternComponent
  *  @package  Patternize

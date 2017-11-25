@@ -197,7 +197,7 @@ class Pattern {
 	}
 
 	/**
-	 *  Create a new Parser instance from string input
+	 *  Create a new Pattern instance from string input
 	 *
 	 *  @name      fromString
 	 *  @param     {String}   input
