@@ -118,8 +118,9 @@ class Pattern {
 	 */
 	same(compare) {
 		const components = this.components;
+		const comparison = this.constructor.getComponentList(compare);
 
-		return this.constructor.getComponentList(compare)
+		return comparison.length !== components.length ? false : comparison
 			.filter((comp, index) => comp.pattern === components[index].pattern)
 			.length === components.length;
 	}
