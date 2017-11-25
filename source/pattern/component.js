@@ -1,7 +1,20 @@
 const Expressionist = require('@konfirm/expressionist');
 const storage = new WeakMap();
 
+/**
+ *  Single matchable compent of a Pattern
+ *
+ *  @class    PatternComponent
+ *  @package  Patternize
+ */
 class PatternComponent {
+	/**
+	 *  Creates an instance of PatternComponent
+	 *
+	 *  @name      constructor
+	 *  @param     {String} string
+	 *  @memberof  PatternComponent
+	 */
 	constructor(string) {
 		const match = string.match(this.constructor.PROPERTY_PATTERN);
 		const pattern =  match ? `(${Expressionist.ungroup(match[2] || '\\w+')})` : Expressionist.escape(string);
@@ -19,7 +32,7 @@ class PatternComponent {
 	 *
 	 *  @readonly
 	 *  @static
-	 *  @memberof PatternComponent
+	 *  @memberof  PatternComponent
 	 */
 	static get PROPERTY_PATTERN() {
 		return /^\{([a-zA-Z]\w*)(?::(.+))?\}$/;
@@ -72,7 +85,6 @@ class PatternComponent {
 	get regex() {
 		return storage.get(this).regex;
 	}
-
 }
 
 module.exports = PatternComponent;

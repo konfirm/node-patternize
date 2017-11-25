@@ -1,12 +1,21 @@
 /* global source, describe, it, expect */
 
 const Patternize = source('patternize');
+const Pattern = source('pattern');
 
 describe('Patternize', () => {
 	describe('register "foo"', () => {
 		const patterns = new Patternize();
+		const registered = patterns.register('foo');
+		const dupe = patterns.register('foo');
+		const forced = patterns.register('foo', true);
 
-		patterns.register('foo');
+		it('does not register another "foo" unless forced', (next) => {
+			expect(dupe === registered).to.equal(true);
+			expect(forced === registered).to.equal(false);
+
+			next();
+		});
 
 		it('does not match "bar"', (next) => {
 			const bars = patterns.match('bar');
@@ -25,15 +34,26 @@ describe('Patternize', () => {
 			const foo = patterns.matchOne('foo');
 
 			expect(foos).to.be.array();
-			expect(foos.length).to.equal(1);
+			expect(foos.length).to.equal(2);
 
-			expect(foo).to.equal({
-				match: 'foo',
-				value: null,
-				pattern: 'foo',
-			});
+			expect(foo).to.equal(registered);
+			expect(foos[0]).to.equal(registered);
+			expect(foos[1]).to.equal(forced);
 
-			expect(foos[0]).to.equal(foo);
+			next();
+		});
+	});
+
+	describe('register Pattern("foo")', () => {
+		const patterns = new Patternize();
+		const pattern = Pattern.fromString('foo');
+		const registered = patterns.register(pattern);
+		const dupe = patterns.register(pattern);
+		const forced = patterns.register(pattern, true);
+
+		it('does not register another "foo" unless forced', (next) => {
+			expect(dupe === registered).to.equal(true);
+			expect(forced === registered).to.equal(true);
 
 			next();
 		});
@@ -41,8 +61,7 @@ describe('Patternize', () => {
 
 	describe('register "foo.{bar}"', () => {
 		const patterns = new Patternize();
-
-		patterns.register('foo.{bar}');
+		const registered = patterns.register('foo.{bar}');
 
 		it('does not match "bar.baz"', (next) => {
 			const bazs = patterns.match('bar.baz');
@@ -63,13 +82,8 @@ describe('Patternize', () => {
 			expect(foos).to.be.array();
 			expect(foos.length).to.equal(1);
 
-			expect(foo).to.equal({
-				match: 'foo.baz',
-				value: new Map().set('bar', 'baz'),
-				pattern: 'foo.{bar}',
-			});
-
-			expect(foos[0]).to.equal(foo);
+			expect(foo).to.equal(registered);
+			expect(foos[0]).to.equal(registered);
 
 			next();
 		});
@@ -81,13 +95,22 @@ describe('Patternize', () => {
 			expect(foos).to.be.array();
 			expect(foos.length).to.equal(1);
 
-			expect(foo).to.equal({
-				match: 'foo.12345',
-				value: new Map().set('bar', '12345'),
-				pattern: 'foo.{bar}',
-			});
+			expect(foo).to.equal(registered);
+			expect(foos[0]).to.equal(registered);
 
-			expect(foos[0]).to.equal(foo);
+			next();
+		});
+
+		it('matches {bar: "abcde"}', (next) => {
+			const value = { bar: 'abcde' };
+			const foos = patterns.match(value);
+			const foo = patterns.matchOne(value);
+
+			expect(foos).to.be.array();
+			expect(foos.length).to.equal(1);
+
+			expect(foo).to.equal(registered);
+			expect(foos[0]).to.equal(registered);
 
 			next();
 		});
@@ -95,8 +118,7 @@ describe('Patternize', () => {
 
 	describe('register "foo.{bar:[0-9]+}"', () => {
 		const patterns = new Patternize();
-
-		patterns.register('foo.{bar:[0-9]+}');
+		const registered = patterns.register('foo.{bar:[0-9]+}');
 
 		it('does not match "bar.baz"', (next) => {
 			const matched = patterns.match('bar.baz');
@@ -130,38 +152,73 @@ describe('Patternize', () => {
 			expect(matched).to.be.array();
 			expect(matched.length).to.equal(1);
 
-			expect(one).to.equal({
-				match: 'foo.12345',
-				value: new Map().set('bar', '12345'),
-				pattern: 'foo.{bar:[0-9]+}',
-			});
-
-			expect(matched[0]).to.equal(one);
+			expect(one).to.equal(registered);
+			expect(matched[0]).to.equal(registered);
 
 			next();
 		});
 	});
 
+	describe('find patterns', () => {
+		const patterns = new Patternize();
+
+		patterns.register('foo.bar');
+		patterns.register('{foo}.{bar}');
+		patterns.register('{greet}.{audience}');
+
+		it('finds "foo.bar"', (next) => {
+			const found = patterns.find('foo.bar');
+
+			expect(found).to.be.array();
+			expect(found.length).to.equal(1);
+			expect(found[0].string).to.equal('foo.bar');
+
+			next();
+		});
+
+		it('finds "{foo}.{bar}"', (next) => {
+			const found = patterns.find('{foo}.{bar}');
+
+			expect(found).to.be.array();
+			expect(found.length).to.equal(1);
+			expect(found[0].string).to.equal('{foo}.{bar}');
+
+			next();
+		});
+
+		it('finds "{foo}.{bar}" and "{greet}.{audience}', (next) => {
+			const found = patterns.find('{foo}.{bar}', true);
+
+			expect(found).to.be.array();
+			expect(found.length).to.equal(2);
+			expect(found[0].string).to.equal('{foo}.{bar}');
+			expect(found[1].string).to.equal('{greet}.{audience}');
+
+			next();
+		});
+	});
 
 	describe('orders correctly', () => {
 		describe('0-2 variables)', () => {
 			const patterns = new Patternize();
-
-			patterns.register('foo.{bar}');
-			patterns.register('{foo}.{bar}');
-			patterns.register('{foo}.bar');
-			patterns.register('foo.bar');
-			patterns.register('foo/bar');
+			const greedy = patterns.register('foo.bar');
+			const registered = [
+				patterns.register('foo.{bar}'),
+				patterns.register('{foo}.{bar}'),
+				patterns.register('{foo}.bar'),
+				greedy,
+				patterns.register('foo/bar'),
+			];
 
 			it('orders "foo.bar"', (next) => {
 				const matched = patterns.match('foo.bar');
 				const one = patterns.matchOne('foo.bar');
-				const order = matched.map((match) => match.pattern);
+				const order = matched.map((match) => match.string);
 
 				expect(matched.length).to.equal(4);
-				expect(matched[0].value).to.equal(null);
+				expect(matched[0]).to.equal(greedy);
 
-				expect(one).to.equal(matched[0]);
+				expect(one).to.equal(greedy);
 
 				expect(order[0]).to.equal('foo.bar');
 				expect(order[1]).to.equal('foo.{bar}');
@@ -174,25 +231,27 @@ describe('Patternize', () => {
 
 		describe('0-3 variables)', () => {
 			const patterns = new Patternize();
-
-			patterns.register('{foo}/bar/{baz}');
-			patterns.register('foo/{bar}/baz');
-			patterns.register('foo/bar/{baz}');
-			patterns.register('{foo}/{bar}/{baz}');
-			patterns.register('{foo}/bar/baz');
-			patterns.register('foo/bar/baz');
-			patterns.register('{foo}/{bar}/baz');
-			patterns.register('foo/{bar}/{baz}');
+			const greedy = patterns.register('foo/bar/baz');
+			const registered = [
+				patterns.register('{foo}/bar/{baz}'),
+				patterns.register('foo/{bar}/baz'),
+				patterns.register('foo/bar/{baz}'),
+				patterns.register('{foo}/{bar}/{baz}'),
+				patterns.register('{foo}/bar/baz'),
+				greedy,
+				patterns.register('{foo}/{bar}/baz'),
+				patterns.register('foo/{bar}/{baz}'),
+			];
 
 			it('orders "foo/bar/baz"', (next) => {
 				const matched = patterns.match('foo/bar/baz');
 				const one = patterns.matchOne('foo/bar/baz');
-				const order = matched.map((match) => match.pattern);
+				const order = matched.map((match) => match.string);
 
 				expect(matched.length).to.equal(8);
-				expect(matched[0].value).to.equal(null);
+				expect(matched[0]).to.equal(greedy);
 
-				expect(one).to.equal(matched[0]);
+				expect(one).to.equal(greedy);
 
 				expect(order[0]).to.equal('foo/bar/baz');
 				expect(order[1]).to.equal('foo/bar/{baz}');
@@ -210,8 +269,9 @@ describe('Patternize', () => {
 		describe('0-10 variables)', () => {
 			const patterns = new Patternize();
 			const input = 'aaa.bbb.ccc.ddd.eee.fff.ggg.hhh.iii.jjj';
+			const greedy = patterns.register(input);
 			const parts = input.split('.');
-			const collect = [ input ];
+			const collect = [];
 
 
 			for (let i = 0; i < parts.length; ++i) {
@@ -223,19 +283,15 @@ describe('Patternize', () => {
 				}, []));
 			}
 
-			const register = collect
-				.filter((path, index, all) => all.indexOf(path) === index);
+			const registered = collect
+				.filter((path, index, all) => path !== input && all.indexOf(path) === index)
+				.map((path) => patterns.register(path))
+				.concat(greedy);
 
-			register
-				.forEach((path) => {
-					patterns.register(path);
-				});
-
-			it(`matches and orders all ${register.length} items`, (next) => {
+			it(`matches and orders all ${registered.length} items`, (next) => {
 				const matched = patterns.match(input);
 				const one = patterns.matchOne(input);
-
-				const order = matched.map((match) => match.pattern);
+				const order = matched.map((match) => match.string);
 				const ehm = order.slice().sort((a, b) => {
 					const ua = a.replace(/\{[^\}]+\}/g, '{*}');
 					const ub = b.replace(/\{[^\}]+\}/g, '{*}');
@@ -247,10 +303,9 @@ describe('Patternize', () => {
 					expect(p).to.equal(order[i]);
 				});
 
-				expect(matched.length).to.equal(register.length);
-				expect(matched[0].value).to.equal(null);
-
-				expect(one).to.equal(matched[0]);
+				expect(matched.length).to.equal(registered.length);
+				expect(matched[0]).to.equal(greedy);
+				expect(one).to.equal(greedy);
 
 				expect(order[0]).to.equal('aaa.bbb.ccc.ddd.eee.fff.ggg.hhh.iii.jjj');
 				expect(order[1]).to.equal('aaa.bbb.ccc.ddd.eee.fff.ggg.hhh.iii.{jjj}');

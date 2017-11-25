@@ -16,41 +16,75 @@ class Patternize {
 		storage.set(this, { list: [] });
 	}
 
-	register(pattern) {
+	/**
+	 *  Register a pattern for matching, if the same pattern already exists
+	 *  the existing one will be returned and no new one is added
+	 *
+	 *  @name      register
+	 *  @param     {Pattern|String}  pattern
+	 *  @param     {Boolean}         [force=false]
+	 *  @returns   {Pattern}         registered
+	 *  @memberof  Patternize
+	 */
+	register(pattern, force=false) {
 		const { list } = storage.get(this);
-		const instance = pattern instanceof Pattern ? pattern : Pattern.fromString(pattern);
+		const candidate = this.find(pattern);
 
-		if (!this.contains(instance)) {
-			list.push(instance);
+		if (force || !candidate.length) {
+			candidate.push(pattern instanceof Pattern ? pattern : Pattern.fromString(pattern));
+			list.push(candidate[0]);
 		}
 
-		return instance;
+		return candidate.pop();
 	}
 
-	contains(compare, similar=true) {
-		return storage.get(this).list
-			.filter((pattern) => similar ? pattern.same(compare) : pattern.equals(compare))
-			.length > 0;
-	}
-
+	/**
+	 *  Match the string input to obtain a list of matching patterns
+	 *
+	 *  @name      match
+	 *  @param     {String} input
+	 *  @returns   {Array}  patterns
+	 *  @memberof  Patternize
+	 */
 	match(input) {
+		const satisfy = typeof input === 'object';
+
 		return storage.get(this).list
-			.filter((pattern) => pattern.matches(input))
+			.filter((pattern) => satisfy ? pattern.satisfies(input) : pattern.matches(input))
 			.sort((a, b) => {
 				const na = a.normalized;
 				const nb = b.normalized;
 
 				return na < nb ? -1 : +(na > nb);
-			})
-			.map((pattern) => ({
-				match: input,
-				value: pattern.getMatchedValues(input),
-				pattern: pattern.string,
-			}));
+			});
 	}
 
+	/**
+	 *  Match the input to obtain the most specific pattern
+	 *
+	 *  @name      matchOne
+	 *  @param     {String|Object}      input
+	 *  @returns   {Pattern|undefined}  matched pattern
+	 *  @memberof  Patternize
+	 */
 	matchOne(input) {
 		return this.match(input).shift();
+	}
+
+	/**
+	 *  Find a pattern matching the provided input.
+	 *
+	 *  @name      find
+	 *  @param     {Pattern|Array|String}  pattern
+	 *  @param     {Boolean}               [similar=false]
+	 *  @returns   {Array}                 patterns
+	 *  @memberof  Patternize
+	 */
+	find(pattern, similar=false) {
+		const compare = Pattern.getComponentList(pattern);
+
+		return storage.get(this).list
+			.filter((pattern) => similar ? pattern.same(compare) : pattern.equals(compare));
 	}
 }
 
