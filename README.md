@@ -55,12 +55,12 @@ const { Patternize, Pattern, PatternComponent, Emitter } = require('@konfirm/pat
 ### Available exports
  type       | name                                            | description
 ------------|-------------------------------------------------|-------------
- `class`    | [`Patternize`https://github.com/konfirm/node-patternize/blob/master/docs/patternize.md#patternize)   | The [`Patternize`https://github.com/konfirm/node-patternize/blob/master/docs/patternize.md#patternize) class
- `class`    | [`Pattern`https://github.com/konfirm/node-patternize/blob/master/docs/pattern.md#pattern)            | The [`Pattern`https://github.com/konfirm/node-patternize/blob/master/docs/pattern.md#pattern) class
- `class`    | [`PatternComponent`https://github.com/konfirm/node-patternize/blob/master/docs/pattern-component.md) | The [`PatternComponent`https://github.com/konfirm/node-patternize/blob/master/docs/pattern-component.md#patterncomponent) class
- `class`    | [`Emitter`https://github.com/konfirm/node-patternize/blob/master/docs/emitter.md#emitter)            | The [`Emitter`https://github.com/konfirm/node-patternize/blob/master/docs/emitter.md#emitter) class
- `instance` | `patternize`                                    | Ready to use instance of [`Patternize`https://github.com/konfirm/node-patternize/blob/master/docs/patternize.md#patternize)
- `instance` | `emitter`                                       | Ready to use instance of [`Emitter`https://github.com/konfirm/node-patternize/blob/master/docs/emitter.md#emitter), linked with the `patternize` instance
+ `class`    | [`Patternize`](https://github.com/konfirm/node-patternize/blob/master/docs/patternize.md#patternize)   | The [`Patternize`](https://github.com/konfirm/node-patternize/blob/master/docs/patternize.md#patternize) class
+ `class`    | [`Pattern`](https://github.com/konfirm/node-patternize/blob/master/docs/pattern.md#pattern)            | The [`Pattern`](https://github.com/konfirm/node-patternize/blob/master/docs/pattern.md#pattern) class
+ `class`    | [`PatternComponent`](https://github.com/konfirm/node-patternize/blob/master/docs/pattern-component.md) | The [`PatternComponent`](https://github.com/konfirm/node-patternize/blob/master/docs/pattern-component.md#patterncomponent) class
+ `class`    | [`Emitter`](https://github.com/konfirm/node-patternize/blob/master/docs/emitter.md#emitter)            | The [`Emitter`](https://github.com/konfirm/node-patternize/blob/master/docs/emitter.md#emitter) class
+ `instance` | `patternize`                                    | Ready to use instance of [`Patternize`](https://github.com/konfirm/node-patternize/blob/master/docs/patternize.md#patternize)
+ `instance` | `emitter`                                       | Ready to use instance of [`Emitter`](https://github.com/konfirm/node-patternize/blob/master/docs/emitter.md#emitter), linked with the `patternize` instance
 
 ## Documentation
  * [README](https://github.com/konfirm/node-patternize/blob/master/docs/README.md)
