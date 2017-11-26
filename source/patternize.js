@@ -39,11 +39,11 @@ class Patternize {
 	}
 
 	/**
-	 *  Match the string input to obtain a list of matching patterns
+	 *  Match the string or object input to obtain a list of matching patterns
 	 *
 	 *  @name      match
-	 *  @param     {String} input
-	 *  @returns   {Array}  patterns
+	 *  @param     {String|Object} input
+	 *  @returns   {Array}         patterns
 	 *  @memberof  Patternize
 	 */
 	match(input) {
@@ -72,7 +72,7 @@ class Patternize {
 	}
 
 	/**
-	 *  Find a pattern matching the provided input.
+	 *  Find patterns matching the provided pattern structure.
 	 *
 	 *  @name      find
 	 *  @param     {Pattern|Array|String}  pattern
