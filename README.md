@@ -1,4 +1,6 @@
 # Patternize Module
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/b7fc35eca1f7477fae1ceeb0985b35d4)](https://www.codacy.com/app/konfirm/node-patternize?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=konfirm/node-patternize&amp;utm_campaign=Badge_Grade)
+[![Build Status](https://travis-ci.org/konfirm/node-patternize.svg?branch=master)](https://travis-ci.org/konfirm/node-patternize)
 
 Register and match patterns. Use patterns as EventEmitter subjects.
 

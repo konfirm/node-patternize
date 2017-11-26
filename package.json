@@ -1,16 +1,25 @@
 {
   "name": "@konfirm/patternize",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "Register string patterns with callbacks, trigger callbacks based on matching values",
   "main": "index.js",
   "scripts": {
     "test": "lab -clr",
     "test-coverage-html": "lab -clr html -o report.html"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/konfirm/node-patternize.git"
+  },
+  "bugs": {
+    "url": "https://github.com/konfirm/node-patternize/issues"
+  },
   "keywords": [
     "pattern",
-    "dispatch",
-    "string-template"
+    "matching",
+    "match",
+    "event",
+    "emit"
   ],
   "author": "Rogier Spieker <rogier@konfirm.eu>",
   "license": "MIT",
