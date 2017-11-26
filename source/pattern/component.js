@@ -47,7 +47,7 @@ class PatternComponent {
 	 *  @memberof  PatternComponent
 	 */
 	get string() {
-		return storage.get(this).string;
+		return String(this);
 	}
 
 	/**
@@ -84,6 +84,17 @@ class PatternComponent {
 	 */
 	get regex() {
 		return storage.get(this).regex;
+	}
+
+	/**
+	 *  Return a string representing the PatternComponent
+	 *
+	 *  @name      toString
+	 *  @return    {String}  patterncomponent
+	 *  @memberof  PatternComponent
+	 */
+	toString() {
+		return storage.get(this).string;
 	}
 }
 

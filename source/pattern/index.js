@@ -133,7 +133,7 @@ class Pattern {
 	 *  @memberof  Pattern
 	 */
 	get string() {
-		return storage.get(this).string;
+		return String(this);
 	}
 
 	/**
@@ -145,6 +145,17 @@ class Pattern {
 	 */
 	get normalized() {
 		return storage.get(this).normal;
+	}
+
+	/**
+	 *  Return a string representing the Pattern
+	 *
+	 *  @name      toString
+	 *  @return    {String}  pattern
+	 *  @memberof  Pattern
+	 */
+	toString() {
+		return storage.get(this).string;
 	}
 
 	/**
