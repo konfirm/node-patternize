@@ -99,9 +99,11 @@ class Pattern {
 		}
 
 		if (Array.isArray(compare)) {
-			return this.components
+			const comparison = this.components;
+
+			return comparison.length !== compare.length ? false : comparison
 				.filter((comp, index) => compare[index] instanceof Component && compare[index].string === comp.string)
-				.length === this.components.length;
+				.length === comparison.length;
 		}
 
 		return String(compare) === this.string;
