@@ -21,7 +21,7 @@ const components = Pattern.getComponentList(pattern);  //  pattern is a Pattern 
 
 ## (constructor) `new Pattern(<array> components)`
 Creates a new Pattern instance from an array of (Pattern)Component instances.
-Refer to the [PatternComponent](#patternComponent) documentation on how to create those or stick with the static [`fromString`](#staticfromstringstringinput) method.
+Refer to the [PatternComponent](https://github.com/konfirm/node-patternize/blob/master/docs/pattern-component.md#patterncomponent) documentation on how to create those or stick with the static [`fromString`](https://github.com/konfirm/node-patternize/blob/master/docs/pattern.md#static-pattern-fromstringstring-input) method.
 ```
 const { Pattern, PatternComponent } = require('@konfirm/patternize');
 const pattern = new Pattern([new PatternComponent(...)]);
