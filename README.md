@@ -39,6 +39,36 @@ emitter.on('hello.{audience}', (subject) => {
 emiter.emit('hello.world');
 ```
 
+## Patterns
+All pattern matching uses regular expressions under the hood, when specifying a pattern which contains variables, the exact expressions matching variables can be configured to your requirements.
+If not specific expression is provided for the variable pattern, it will use `\w+`, which means; one or more of: Letter (any case), number or underscore.
+
+### Examples
+
+#### `user.{id:[0-9]{3,12}}`
+Matches `'user.`' followed by 3-12 number characters, e.g. `'user.123'` and `'user.987262725682'`, but not `'user.jane'` or `'user.john'`
+
+#### `date/{year:20[0-2][0-9]}`
+Matches `'date/'` followed by `'20'`, followed by a number 0-2, followed by any number, e.g. `'date/2017'` and `'date/2029'`, but not `'date/1999'` or `'date/2030'`
+
+#### `date/{year:20[0-2][0-9]}-{month:0[1-9]|11|12}-{day:0[1-9]|[1-2][0-9]|3[01]}`
+Like the example above, with the addition of a month 01-12 followed by a day 01-31.
+_While it enforces sane month/date ranges, this will not enforce the date entered to be valid in itself_
+Matches `'date/2017-02-31'` (_invalid as a date, valid as a pattern_) and `'date/2005-06-07'`, but not `'date/1970-01-01'` or `'date/2017-1-2'`
+
+### Important
+While the sort order of matches does take greedyness into account (non-variable portions), the variable portions in itself are not prioritized in any way but instead treated as equals. This means that the order of registration is important, for example:
+```
+const { patternize } = require('@konfirm/patternize');
+
+patternize.register('user.{catchall:.+}');
+patternize.register('user.{id:[0-9]{3,12}}');
+patternize.register('user.{name:[a-zA-Z]+}');
+```
+Will always match the first (with `catchall`) before anything else, take this into consideration when `register`ing patterns or adding `on` and `once` subscriptions to an `Emitter`.
+
+
+
 ## API
 
 The main package file is an export of several classes and ready to use instances. These can be easily accessed using [destructuring assignment](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment).
