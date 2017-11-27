@@ -34,6 +34,6 @@
     "@konfirm/labrat": "^1.1.0"
   },
   "dependencies": {
-    "@konfirm/expressionist": "^1.0.0"
+    "@konfirm/expressionist": "^1.0.1"
   }
 }
