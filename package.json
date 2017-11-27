@@ -20,7 +20,14 @@
     "match",
     "event",
     "emit"
-  ],
+	],
+	"files": [
+		"source/",
+		"index.js",
+		"docs/",
+		"README.md",
+		"LICENSE"
+	],
   "author": "Rogier Spieker <rogier@konfirm.eu>",
   "license": "MIT",
   "devDependencies": {
