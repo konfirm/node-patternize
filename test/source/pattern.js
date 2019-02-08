@@ -22,10 +22,10 @@ describe('Pattern', () => {
 				{ value: 'foo.bar.baz', matches: true, values: { bar: 'bar', baz: 'baz' } },
 				{ value: 'foo.ba.baz', matches: false },
 				{ value: 'foo.ba.12', matches: false },
-				{ value: 'foo.baa.123', matches: true, values: { bar: 'baa', baz: 123 } },
-				{ value: 'foo.baaa.1234', matches: true, values: { bar: 'baaa', baz: 1234 } },
-				{ value: 'foo.baaaa.12345', matches: true, values: { bar: 'baaaa', baz: 12345 } },
-				{ value: 'foo.baaaaa.123457', matches: true, values: { bar: 'baaaaa', baz: 123457 } },
+				{ value: 'foo.baa.123', matches: true, values: { bar: 'baa', baz: '123' } },
+				{ value: 'foo.baaa.1234', matches: true, values: { bar: 'baaa', baz: '1234' } },
+				{ value: 'foo.baaaa.12345', matches: true, values: { bar: 'baaaa', baz: '12345' } },
+				{ value: 'foo.baaaaa.123457', matches: true, values: { bar: 'baaaaa', baz: '123457' } },
 				{ value: 'foo.baaaaaa.1234578', matches: false },
 			] },
 		];
@@ -42,7 +42,13 @@ describe('Pattern', () => {
 							const result = Object.keys(input.values)
 								.reduce((map, key) => map.set(key, input.values[key]), new Map());
 
-							expect(pattern.getMatchedValues(input.value)).to.equal(result);
+							const matched = pattern.getMatchedValues(input.value);
+
+							expect(matched.size).to.equal(result.size);
+
+							for (const [ key, value] of matched) {
+								expect(value).to.equal(result.get(key));
+							}
 						}
 						else {
 							expect(pattern.getMatchedValues(input.value)).to.equal(null);

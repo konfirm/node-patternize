@@ -18,7 +18,7 @@ describe('Examples', () => {
 			input: 'date/{year:20[0-2][0-9]}',
 			tests: [
 				{ input: 'date/2017', expect: true, values: { year: '2017' } },
-				{ input: 'date/2029', expect: true, values: { year: '2019' } },
+				{ input: 'date/2029', expect: true, values: { year: '2029' } },
 				{ input: 'date/1999', expect: false },
 				{ input: 'date/2030', expect: false },
 			],
@@ -51,7 +51,14 @@ describe('Examples', () => {
 
 					expect(matched).to.equal(registered);
 					expect(matched.string).to.equal(sample.input);
-					expect(matched.getMatchedValues(test.input)).to.equal(map);
+
+					const values = matched.getMatchedValues(test.input);
+
+					expect(values.size).to.equal(map.size);
+
+					for (const [ key, value] of values) {
+						expect(value).to.equal(map.get(key));
+					}
 				}
 				else {
 					expect(matched).to.be.undefined();
