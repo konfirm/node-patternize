@@ -25,9 +25,9 @@
   "author": "Rogier Spieker <rogier@konfirm.eu>",
   "license": "MIT",
   "devDependencies": {
-    "@konfirm/labrat": "^2.0.1"
+    "@konfirm/labrat": "^2.0.2"
   },
   "dependencies": {
-    "@konfirm/expressionist": "^1.0.6"
+    "@konfirm/expressionist": "^1.0.7"
   }
 }
