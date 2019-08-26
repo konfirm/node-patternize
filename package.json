@@ -1,6 +1,6 @@
 {
   "name": "@konfirm/patternize",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Register string patterns with callbacks, trigger callbacks based on matching values",
   "main": "index.js",
   "scripts": {
